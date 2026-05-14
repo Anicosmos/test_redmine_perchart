@@ -1,0 +1,22 @@
+<% content_for :header_tags do %>
+  <%= stylesheet_link_tag 'pert_chart', plugin: 'redmine_pertchart' %>
+  <%= javascript_include_tag 'https://unpkg.com/vis-network@9.1.9/dist/vis-network.min.js' %>
+  <%= javascript_include_tag 'pert_chart_controller', plugin: 'redmine_pertchart' %>
+<% end %>
+
+<div class="contextual">
+  <h2><%= l(:label_pertchart) %></h2>
+</div>
+
+<div class="pertchart-summary">
+  <span><strong><%= l(:label_project) %>:</strong> <%= @project.name %></span>
+  <span><strong><%= l(:label_issue_plural) %>:</strong> <%= @issues.size %></span>
+  <span><strong><%= l(:label_pertchart_critical_duration) %>:</strong> <%= @graph_data[:project_duration_days] %>d</span>
+</div>
+
+<div
+  id="pertchart-network"
+  class="pertchart-network"
+  data-controller="pert-chart"
+  data-pert-chart-graph-value="<%= json_escape(@graph_data.to_json) %>">
+</div>
