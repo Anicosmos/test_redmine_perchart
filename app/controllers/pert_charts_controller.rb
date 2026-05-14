@@ -26,19 +26,19 @@ class PertChartsController < ApplicationController
     )
 
     adjacency = Hash.new { |h, k| h[k] = [] }
-    indegree = Hash.new(0)
+    predecessor_count = Hash.new(0)
 
-    issues.each { |issue| indegree[issue.id] = 0 }
+    issues.each { |issue| predecessor_count[issue.id] = 0 }
 
     relations.each do |relation|
       from_id, to_id = relation_edge(relation)
       next unless from_id && to_id
 
       adjacency[from_id] << to_id
-      indegree[to_id] += 1
+      predecessor_count[to_id] += 1
     end
 
-    sorted_ids = topological_sort(issue_ids, adjacency, indegree)
+    sorted_ids = topological_sort(issue_ids, adjacency, predecessor_count)
     issue_by_id = issues.index_by(&:id)
     durations = issues.each_with_object({}) { |issue, map| map[issue.id] = duration_for(issue) }
 
@@ -87,8 +87,8 @@ class PertChartsController < ApplicationController
     }
   end
 
-  def topological_sort(issue_ids, adjacency, indegree)
-    queue = issue_ids.select { |id| indegree[id].zero? }
+  def topological_sort(issue_ids, adjacency, predecessor_count)
+    queue = issue_ids.select { |id| predecessor_count[id].zero? }
     sorted = []
 
     until queue.empty?
@@ -96,8 +96,8 @@ class PertChartsController < ApplicationController
       sorted << current
 
       adjacency[current].each do |neighbor|
-        indegree[neighbor] -= 1
-        queue << neighbor if indegree[neighbor].zero?
+        predecessor_count[neighbor] -= 1
+        queue << neighbor if predecessor_count[neighbor].zero?
       end
     end
 
@@ -106,6 +106,7 @@ class PertChartsController < ApplicationController
     # Fallback for cyclic dependency data:
     # array-set union keeps the sorted acyclic prefix first, then appends
     # any remaining issue IDs so all tasks still render in the chart.
+    Rails.logger.warn('[redmine_pertchart] Circular issue dependencies detected; critical path may be approximate.')
     sorted | issue_ids
   end
 

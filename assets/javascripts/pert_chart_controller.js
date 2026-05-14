@@ -1,7 +1,7 @@
 (function() {
   function renderPertChart(container, graphData) {
     if (!window.vis) {
-      console.warn('redmine_pertchart: vis-network library is not available.');
+      console.warn('redmine_pertchart: vis-network failed to load. Check script inclusion and network access.');
       return;
     }
     if (!container || !graphData) return;
