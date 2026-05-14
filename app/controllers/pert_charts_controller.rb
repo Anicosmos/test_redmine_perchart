@@ -3,6 +3,8 @@
 require 'set'
 
 class PertChartsController < ApplicationController
+  protect_from_forgery with: :exception
+
   before_action :find_project_by_project_id
   before_action :authorize
 
@@ -17,9 +19,11 @@ class PertChartsController < ApplicationController
 
   def build_graph_data(issues)
     issue_ids = issues.map(&:id)
-    relations = IssueRelation
-                  .where(issue_from_id: issue_ids, issue_to_id: issue_ids)
-                  .where(relation_type: %w[precedes follows])
+    relations = IssueRelation.where(
+      issue_from_id: issue_ids,
+      issue_to_id: issue_ids,
+      relation_type: %w[precedes follows]
+    )
 
     adjacency = Hash.new { |h, k| h[k] = [] }
     indegree = Hash.new(0)
@@ -99,7 +103,9 @@ class PertChartsController < ApplicationController
 
     return sorted if sorted.size == issue_ids.size
 
-    # Fallback for cyclic dependency data: preserve all issues.
+    # Fallback for cyclic dependency data:
+    # array-set union keeps the sorted acyclic prefix first, then appends
+    # any remaining issue IDs so all tasks still render in the chart.
     sorted | issue_ids
   end
 

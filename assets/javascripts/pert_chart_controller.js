@@ -1,6 +1,10 @@
 (function() {
   function renderPertChart(container, graphData) {
-    if (!window.vis || !container || !graphData) return;
+    if (!window.vis) {
+      console.warn('redmine_pertchart: vis-network library is not available.');
+      return;
+    }
+    if (!container || !graphData) return;
 
     var nodes = graphData.nodes.map(function(node) {
       var label = '#' + node.issue_id + ' ' + node.subject + '\n' +
