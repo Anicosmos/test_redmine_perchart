@@ -12,11 +12,20 @@
   <span><strong><%= l(:label_project) %>:</strong> <%= @project.name %></span>
   <span><strong><%= l(:label_issue_plural) %>:</strong> <%= @issues.size %></span>
   <span><strong><%= l(:label_pertchart_critical_duration) %>:</strong> <%= @graph_data[:project_duration_days] %>d</span>
+  <span id="pertchart-nodates-info" class="pertchart-nodates-info" style="display:none">
+    <label class="pertchart-toggle-label">
+      <input type="checkbox" id="pertchart-show-no-dates">
+      <%= l(:label_pertchart_show_no_dates) %> (<span id="pertchart-no-dates-count">0</span>)
+    </label>
+  </span>
 </div>
 
 <div
   id="pertchart-network"
   class="pertchart-network"
   data-controller="pert-chart"
-  data-pert-chart-graph-value="<%= json_escape(@graph_data.to_json) %>">
+  data-pert-chart-graph-value="<%= json_escape(@graph_data.to_json) %>"
+  data-pert-chart-toggle-id="pertchart-show-no-dates"
+  data-pert-chart-no-dates-count-id="pertchart-no-dates-count"
+  data-pert-chart-no-dates-info-id="pertchart-nodates-info">
 </div>

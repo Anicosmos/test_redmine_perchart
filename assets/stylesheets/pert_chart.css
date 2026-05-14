@@ -3,7 +3,25 @@
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
+  align-items: center;
   color: #334155;
+}
+
+.pertchart-nodates-info {
+  margin-left: auto;
+}
+
+.pertchart-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: #475569;
+}
+
+.pertchart-toggle-label input[type="checkbox"] {
+  cursor: pointer;
 }
 
 .pertchart-network {
