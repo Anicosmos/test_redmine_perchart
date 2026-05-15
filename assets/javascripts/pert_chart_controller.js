@@ -13,6 +13,7 @@
   var SUBJECT_MAX_CHARS = 34;
   var EDGE_COLOR = '#64748b';
   var EDGE_CRITICAL_COLOR = '#b45309';
+  var MARKER_SEQUENCE = 0;
 
   function truncateText(value, maxChars) {
     var text = String(value || '');
@@ -22,6 +23,24 @@
 
   function displayValue(value) {
     return (value === null || typeof value === 'undefined') ? '-' : value;
+  }
+
+  function createArrowMarker(svgNs, markerId, color) {
+    var marker = document.createElementNS(svgNs, 'marker');
+    marker.setAttribute('id', markerId);
+    marker.setAttribute('viewBox', '0 0 10 10');
+    marker.setAttribute('refX', '10');
+    marker.setAttribute('refY', '5');
+    marker.setAttribute('markerWidth', '8');
+    marker.setAttribute('markerHeight', '8');
+    marker.setAttribute('orient', 'auto-start-reverse');
+
+    var arrowPath = document.createElementNS(svgNs, 'path');
+    arrowPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
+    arrowPath.setAttribute('fill', color);
+    marker.appendChild(arrowPath);
+
+    return marker;
   }
 
   function renderPertChart(container, graphData, showNoDates) {
@@ -142,20 +161,12 @@
     svg.setAttribute('height', chartHeight);
 
     var defs = document.createElementNS(SVG_NS, 'defs');
-    var marker = document.createElementNS(SVG_NS, 'marker');
-    var markerId = 'pert-arrow-' + Math.random().toString(36).slice(2, 10);
-    marker.setAttribute('id', markerId);
-    marker.setAttribute('viewBox', '0 0 10 10');
-    marker.setAttribute('refX', '10');
-    marker.setAttribute('refY', '5');
-    marker.setAttribute('markerWidth', '8');
-    marker.setAttribute('markerHeight', '8');
-    marker.setAttribute('orient', 'auto-start-reverse');
-    var arrowPath = document.createElementNS(SVG_NS, 'path');
-    arrowPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
-    arrowPath.setAttribute('fill', EDGE_COLOR);
-    marker.appendChild(arrowPath);
-    defs.appendChild(marker);
+    MARKER_SEQUENCE += 1;
+    var markerBase = 'pert-arrow-' + Date.now() + '-' + MARKER_SEQUENCE;
+    var defaultMarkerId = markerBase + '-default';
+    var criticalMarkerId = markerBase + '-critical';
+    defs.appendChild(createArrowMarker(SVG_NS, defaultMarkerId, EDGE_COLOR));
+    defs.appendChild(createArrowMarker(SVG_NS, criticalMarkerId, EDGE_CRITICAL_COLOR));
     svg.appendChild(defs);
 
     filteredEdges.forEach(function(edge) {
@@ -174,8 +185,8 @@
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', edge.critical ? EDGE_CRITICAL_COLOR : EDGE_COLOR);
       path.setAttribute('stroke-width', edge.critical ? '3' : '2');
-      path.setAttribute('stroke-dasharray', edge.critical ? 'none' : '6 4');
-      path.setAttribute('marker-end', 'url(#' + markerId + ')');
+      if (!edge.critical) path.setAttribute('stroke-dasharray', '6 4');
+      path.setAttribute('marker-end', 'url(#' + (edge.critical ? criticalMarkerId : defaultMarkerId) + ')');
       path.setAttribute('opacity', edge.critical ? '1' : '0.95');
       svg.appendChild(path);
     });
