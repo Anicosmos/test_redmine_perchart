@@ -145,6 +145,8 @@ class PertChartsController < ApplicationController
   end
 
   def critical_edge?(from_node, to_node)
+    # In PERT/CPM terms, an edge is on the critical path when both tasks are
+    # critical and the predecessor finishes exactly when the successor starts.
     from_node && to_node &&
       from_node[:critical] &&
       to_node[:critical] &&

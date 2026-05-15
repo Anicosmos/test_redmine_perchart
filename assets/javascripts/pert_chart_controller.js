@@ -11,11 +11,17 @@
   var PAD_Y = 40;
   var RESIZE_DEBOUNCE_MS = 120;
   var SUBJECT_MAX_CHARS = 34;
+  var EDGE_COLOR = '#64748b';
+  var EDGE_CRITICAL_COLOR = '#b45309';
 
   function truncateText(value, maxChars) {
     var text = String(value || '');
     if (text.length <= maxChars) return text;
     return text.slice(0, maxChars - 1) + '…';
+  }
+
+  function displayValue(value) {
+    return (value === null || typeof value === 'undefined') ? '-' : value;
   }
 
   function renderPertChart(container, graphData, showNoDates) {
@@ -137,7 +143,8 @@
 
     var defs = document.createElementNS(SVG_NS, 'defs');
     var marker = document.createElementNS(SVG_NS, 'marker');
-    marker.setAttribute('id', 'pert-arrow');
+    var markerId = 'pert-arrow-' + Math.random().toString(36).slice(2, 10);
+    marker.setAttribute('id', markerId);
     marker.setAttribute('viewBox', '0 0 10 10');
     marker.setAttribute('refX', '10');
     marker.setAttribute('refY', '5');
@@ -146,7 +153,7 @@
     marker.setAttribute('orient', 'auto-start-reverse');
     var arrowPath = document.createElementNS(SVG_NS, 'path');
     arrowPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 z');
-    arrowPath.setAttribute('fill', '#64748b');
+    arrowPath.setAttribute('fill', EDGE_COLOR);
     marker.appendChild(arrowPath);
     defs.appendChild(marker);
     svg.appendChild(defs);
@@ -165,10 +172,10 @@
       var path = document.createElementNS(SVG_NS, 'path');
       path.setAttribute('d', 'M ' + x1 + ' ' + y1 + ' C ' + (x1 + ctrl) + ' ' + y1 + ', ' + (x2 - ctrl) + ' ' + y2 + ', ' + x2 + ' ' + y2);
       path.setAttribute('fill', 'none');
-      path.setAttribute('stroke', edge.critical ? '#b45309' : '#64748b');
+      path.setAttribute('stroke', edge.critical ? EDGE_CRITICAL_COLOR : EDGE_COLOR);
       path.setAttribute('stroke-width', edge.critical ? '3' : '2');
       path.setAttribute('stroke-dasharray', edge.critical ? 'none' : '6 4');
-      path.setAttribute('marker-end', 'url(#pert-arrow)');
+      path.setAttribute('marker-end', 'url(#' + markerId + ')');
       path.setAttribute('opacity', edge.critical ? '1' : '0.95');
       svg.appendChild(path);
     });
@@ -202,9 +209,9 @@
 
       var lines = [
         '#' + node.issue_id + ' ' + truncateText(node.subject, SUBJECT_MAX_CHARS),
-        'Duration: ' + node.duration_days + 'd | Slack: ' + node.slack_days + 'd',
-        'Earliest (Start/Finish): ' + node.earliest_start_days + '/' + node.earliest_finish_days + 'd',
-        'Latest (Start/Finish): ' + node.latest_start_days + '/' + node.latest_finish_days + 'd',
+        'Duration: ' + displayValue(node.duration_days) + 'd | Slack: ' + displayValue(node.slack_days) + 'd',
+        'Earliest (Start/Finish): ' + displayValue(node.earliest_start_days) + '/' + displayValue(node.earliest_finish_days) + 'd',
+        'Latest (Start/Finish): ' + displayValue(node.latest_start_days) + '/' + displayValue(node.latest_finish_days) + 'd',
         'Start: ' + (node.start_date || '-') + ' | End: ' + (node.due_date || '-')
       ];
 
