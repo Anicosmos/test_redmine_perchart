@@ -90,12 +90,8 @@ class PertChartsController < ApplicationController
       targets.map do |to_id|
         from_node = node_by_id[from_id]
         to_node = node_by_id[to_id]
-        edge_is_critical = from_node && to_node &&
-          from_node[:critical] &&
-          to_node[:critical] &&
-          from_node[:earliest_finish_days] == to_node[:earliest_start_days]
 
-        { from: from_id, to: to_id, critical: edge_is_critical }
+        { from: from_id, to: to_id, critical: critical_edge?(from_node, to_node) }
       end
     end
 
@@ -146,5 +142,12 @@ class PertChartsController < ApplicationController
     else
       1
     end
+  end
+
+  def critical_edge?(from_node, to_node)
+    from_node && to_node &&
+      from_node[:critical] &&
+      to_node[:critical] &&
+      from_node[:earliest_finish_days] == to_node[:earliest_start_days]
   end
 end

@@ -10,6 +10,13 @@
   var PAD_X = 40;
   var PAD_Y = 40;
   var RESIZE_DEBOUNCE_MS = 120;
+  var SUBJECT_MAX_CHARS = 34;
+
+  function truncateText(value, maxChars) {
+    var text = String(value || '');
+    if (text.length <= maxChars) return text;
+    return text.slice(0, maxChars - 1) + '…';
+  }
 
   function renderPertChart(container, graphData, showNoDates) {
     if (!container || !graphData) return 0;
@@ -85,7 +92,7 @@
 
     if (processed !== filteredNodes.length) {
       filteredNodes.forEach(function(node) {
-        if (levels[node.id] == null) levels[node.id] = 0;
+        if (levels[node.id] === null || typeof levels[node.id] === 'undefined') levels[node.id] = 0;
       });
     }
 
@@ -193,7 +200,7 @@
       text.setAttribute('class', 'pertchart-node-text');
 
       var lines = [
-        '#' + node.issue_id + ' ' + node.subject,
+        '#' + node.issue_id + ' ' + truncateText(node.subject, SUBJECT_MAX_CHARS),
         'Dur: ' + node.duration_days + 'd | Slack: ' + node.slack_days + 'd',
         'ES/EF: ' + node.earliest_start_days + '/' + node.earliest_finish_days + 'd',
         'LS/LF: ' + node.latest_start_days + '/' + node.latest_finish_days + 'd',
