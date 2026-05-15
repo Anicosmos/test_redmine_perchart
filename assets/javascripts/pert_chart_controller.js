@@ -167,6 +167,7 @@
       path.setAttribute('fill', 'none');
       path.setAttribute('stroke', edge.critical ? '#b45309' : '#64748b');
       path.setAttribute('stroke-width', edge.critical ? '3' : '2');
+      path.setAttribute('stroke-dasharray', edge.critical ? 'none' : '6 4');
       path.setAttribute('marker-end', 'url(#pert-arrow)');
       path.setAttribute('opacity', edge.critical ? '1' : '0.95');
       svg.appendChild(path);
@@ -201,9 +202,9 @@
 
       var lines = [
         '#' + node.issue_id + ' ' + truncateText(node.subject, SUBJECT_MAX_CHARS),
-        'Dur: ' + node.duration_days + 'd | Slack: ' + node.slack_days + 'd',
-        'ES/EF: ' + node.earliest_start_days + '/' + node.earliest_finish_days + 'd',
-        'LS/LF: ' + node.latest_start_days + '/' + node.latest_finish_days + 'd',
+        'Duration: ' + node.duration_days + 'd | Slack: ' + node.slack_days + 'd',
+        'Earliest (Start/Finish): ' + node.earliest_start_days + '/' + node.earliest_finish_days + 'd',
+        'Latest (Start/Finish): ' + node.latest_start_days + '/' + node.latest_finish_days + 'd',
         'Start: ' + (node.start_date || '-') + ' | End: ' + (node.due_date || '-')
       ];
 
