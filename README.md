@@ -158,8 +158,7 @@ After installation, verify:
 
 - Ensure project has issues visible to current user.
 - Ensure issue relations exist (`precedes` / `follows`).
-- Check browser console/network for blocked external script:
-  - `https://unpkg.com/vis-network@9.1.9/dist/vis-network.min.js`
+- Check browser console for JavaScript errors from `pert_chart_controller.js`.
 
 ### Migration errors
 

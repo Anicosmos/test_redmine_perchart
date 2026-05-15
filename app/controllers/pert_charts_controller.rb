@@ -76,13 +76,28 @@ class PertChartsController < ApplicationController
         start_date: issue.start_date&.to_s,
         due_date: issue.due_date&.to_s,
         duration_days: durations[issue_id],
+        earliest_start_days: earliest_start[issue_id],
+        earliest_finish_days: earliest_finish[issue_id],
+        latest_start_days: latest_start[issue_id],
+        latest_finish_days: latest_finish[issue_id],
+        slack_days: slack,
         critical: slack.zero?
       }
     end
 
+    node_by_id = nodes.index_by { |n| n[:id] }
+    edges = adjacency.flat_map do |from_id, targets|
+      targets.map do |to_id|
+        from_node = node_by_id[from_id]
+        to_node = node_by_id[to_id]
+
+        { from: from_id, to: to_id, critical: critical_edge?(from_node, to_node) }
+      end
+    end
+
     {
       nodes: nodes,
-      edges: adjacency.flat_map { |from_id, targets| targets.map { |to_id| { from: from_id, to: to_id } } },
+      edges: edges,
       project_duration_days: project_duration
     }
   end
@@ -127,5 +142,14 @@ class PertChartsController < ApplicationController
     else
       1
     end
+  end
+
+  def critical_edge?(from_node, to_node)
+    # In PERT/CPM terms, an edge is on the critical path when both tasks are
+    # critical and the predecessor finishes exactly when the successor starts.
+    from_node && to_node &&
+      from_node[:critical] &&
+      to_node[:critical] &&
+      from_node[:earliest_finish_days] == to_node[:earliest_start_days]
   end
 end
